@@ -3,18 +3,54 @@ export type CellAddress = string & { __brand: 'CellAddress' };
 
 // Helper functions for CellAddress
 export const toCellAddress = (addr: string): CellAddress => {
-  // TODO: Validate format (e.g., A1, B12, AA99)
+  // Validate format (e.g., A1, B12, AA99, $A$1, A$1, $A1)
+  const cellPattern = /^\$?[A-Z]+\$?[1-9][0-9]*$/;
+  if (!cellPattern.test(addr)) {
+    throw new Error(`Invalid cell address format: ${addr}`);
+  }
   return addr as CellAddress;
 };
 
 export const parseCellAddress = (addr: CellAddress): { col: number; row: number } => {
-  // TODO: Parse "A1" -> { col: 0, row: 0 }
-  throw new Error('Not implemented');
+  // Parse "A1", "$A1", "A$1", "$A$1" -> { col: 0, row: 0 }
+  const match = addr.match(/^\$?([A-Z]+)\$?([1-9][0-9]*)$/);
+  if (!match) {
+    throw new Error(`Invalid cell address: ${addr}`);
+  }
+  
+  const [, colStr, rowStr] = match;
+  
+  // Convert column letters to number (A=0, B=1, ..., Z=25, AA=26, etc.)
+  let col = 0;
+  for (let i = 0; i < colStr.length; i++) {
+    col = col * 26 + (colStr.charCodeAt(i) - 65 + 1);
+  }
+  col -= 1; // Convert to 0-based
+  
+  const row = parseInt(rowStr, 10) - 1; // Convert to 0-based
+  
+  return { col, row };
 };
 
 export const formatCellAddress = (col: number, row: number): CellAddress => {
-  // TODO: Format { col: 0, row: 0 } -> "A1"
-  throw new Error('Not implemented');
+  // Format { col: 0, row: 0 } -> "A1"
+  if (col < 0 || row < 0) {
+    throw new Error(`Invalid cell coordinates: col=${col}, row=${row}`);
+  }
+  
+  // Convert column number to letters (0=A, 1=B, ..., 25=Z, 26=AA, etc.)
+  let colStr = '';
+  let colNum = col + 1; // Convert to 1-based
+  
+  while (colNum > 0) {
+    colNum -= 1; // Adjust for 0-based alphabet
+    colStr = String.fromCharCode(65 + (colNum % 26)) + colStr;
+    colNum = Math.floor(colNum / 26);
+  }
+  
+  const rowStr = (row + 1).toString(); // Convert to 1-based
+  
+  return toCellAddress(colStr + rowStr);
 };
 
 // Cell types (discriminated union)
@@ -90,7 +126,7 @@ export interface BinaryOp {
 
 export interface UnaryOp {
   type: 'unary';
-  op: '-';
+  op: '-' | '+';
   operand: FormulaAst;
 }
 

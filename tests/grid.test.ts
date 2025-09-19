@@ -10,7 +10,7 @@ import {
 import { toCellAddress } from '@/types';
 
 describe('Column Conversions', () => {
-  test.skip('colToLetter converts column index to letters', () => {
+  test('colToLetter converts column index to letters', () => {
     // These will fail until implemented
     expect(colToLetter(0)).toBe('A');
     expect(colToLetter(1)).toBe('B');
@@ -23,7 +23,7 @@ describe('Column Conversions', () => {
     expect(colToLetter(702)).toBe('AAA');
   });
 
-  test.skip('letterToCol converts letters to column index', () => {
+  test('letterToCol converts letters to column index', () => {
     // These will fail until implemented
     expect(letterToCol('A')).toBe(0);
     expect(letterToCol('B')).toBe(1);
@@ -38,7 +38,7 @@ describe('Column Conversions', () => {
 });
 
 describe('Address Parsing', () => {
-  test.skip('parseAddress handles relative references', () => {
+  test('parseAddress handles relative references', () => {
     // These will fail until implemented
     const result = parseAddress('A1');
     expect(result).toEqual({
@@ -49,7 +49,7 @@ describe('Address Parsing', () => {
     });
   });
 
-  test.skip('parseAddress handles absolute references', () => {
+  test('parseAddress handles absolute references', () => {
     // These will fail until implemented
     expect(parseAddress('$A$1')).toEqual({
       col: 0,
@@ -73,7 +73,7 @@ describe('Address Parsing', () => {
     });
   });
 
-  test.skip('formatAddress creates proper address strings', () => {
+  test('formatAddress creates proper address strings', () => {
     // These will fail until implemented
     expect(formatAddress(0, 0)).toBe(toCellAddress('A1'));
     expect(formatAddress(0, 0, true, true)).toBe(toCellAddress('$A$1'));
@@ -83,7 +83,7 @@ describe('Address Parsing', () => {
 });
 
 describe('Range Operations', () => {
-  test.skip('parseRange extracts start and end addresses', () => {
+  test('parseRange extracts start and end addresses', () => {
     // These will fail until implemented
     const result = parseRange('A1:B3');
     expect(result).toEqual({
@@ -92,7 +92,7 @@ describe('Range Operations', () => {
     });
   });
 
-  test.skip('getCellsInRange returns all cells in range', () => {
+  test('getCellsInRange returns all cells in range', () => {
     // These will fail until implemented
     const cells = getCellsInRange(toCellAddress('A1'), toCellAddress('B2'));
     expect(cells).toEqual([
@@ -103,7 +103,7 @@ describe('Range Operations', () => {
     ]);
   });
 
-  test.skip('getCellsInRange handles single cell range', () => {
+  test('getCellsInRange handles single cell range', () => {
     // These will fail until implemented
     const cells = getCellsInRange(toCellAddress('C3'), toCellAddress('C3'));
     expect(cells).toEqual([toCellAddress('C3')]);

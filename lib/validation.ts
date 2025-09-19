@@ -8,7 +8,7 @@ export const SheetCreateSchema = z.object({
 });
 
 export const CellEditSchema = z.object({
-  addr: z.string().regex(/^[A-Z]+[0-9]+$/),
+  addr: z.string().regex(/^\$?[A-Z]+\$?[0-9]+$/),
   kind: z.enum(['literal', 'formula', 'clear']),
   value: z.union([z.string(), z.number(), z.boolean()]).optional(),
   formula: z.string().optional()
@@ -20,7 +20,7 @@ export const SheetPatchSchema = z.object({
 
 export const EvalRequestSchema = z.object({
   id: z.string(),
-  addr: z.string().regex(/^[A-Z]+[0-9]+$/)
+  addr: z.string().regex(/^\$?[A-Z]+\$?[0-9]+$/)
 });
 
 // Response validation schemas

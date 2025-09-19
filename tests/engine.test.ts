@@ -5,43 +5,46 @@ import { Sheet, toCellAddress } from '@/types';
 import { createSeedSheet } from '@/lib/seed';
 
 describe('Formula Parser', () => {
-  test.skip('parses basic arithmetic', () => {
-    // This will fail until parser is implemented
+  test('parses basic arithmetic', () => {
     const ast = parseFormula('1+2*3');
     expect(ast).toBeDefined();
     expect(ast.type).toBe('binary');
   });
   
-  test.skip('handles operator precedence correctly', () => {
-    // This will fail until parser is implemented
+  test('handles operator precedence correctly', () => {
     // Should parse as 1+(2*3) not (1+2)*3
     const ast = parseFormula('1+2*3');
     expect(ast.type).toBe('binary');
-    expect(ast.op).toBe('+');
-    // Right side should be multiplication
-    expect(ast.right.type).toBe('binary');
-    expect(ast.right.op).toBe('*');
+    if (ast.type === 'binary') {
+      expect(ast.op).toBe('+');
+      // Right side should be multiplication
+      expect(ast.right.type).toBe('binary');
+      if (ast.right.type === 'binary') {
+        expect(ast.right.op).toBe('*');
+      }
+    }
   });
   
-  test.skip('parses cell references', () => {
-    // This will fail until parser is implemented
+  test('parses cell references', () => {
     const ast = parseFormula('A1');
     expect(ast.type).toBe('ref');
-    expect(ast.address).toBe(toCellAddress('A1'));
+    if (ast.type === 'ref') {
+      expect(ast.address).toBe(toCellAddress('A1'));
+    }
   });
   
-  test.skip('parses function calls', () => {
-    // This will fail until parser is implemented
+  test('parses function calls', () => {
     const ast = parseFormula('SUM(A1,B2,C3)');
     expect(ast.type).toBe('function');
-    expect(ast.name).toBe('SUM');
-    expect(ast.args).toHaveLength(3);
+    if (ast.type === 'function') {
+      expect(ast.name).toBe('SUM');
+      expect(ast.args).toHaveLength(3);
+    }
   });
 });
 
 describe('Dependency Graph', () => {
-  test.skip('detects direct cycles', () => {
-    // This will fail until implemented
+  test('detects direct cycles', () => {
     const graph = new DependencyGraph();
     graph.addDependency(toCellAddress('A1'), toCellAddress('B1'));
     graph.addDependency(toCellAddress('B1'), toCellAddress('C1'));
@@ -50,14 +53,12 @@ describe('Dependency Graph', () => {
     expect(graph.hasCycle(toCellAddress('C1'), toCellAddress('A1'))).toBe(true);
   });
 
-  test.skip('detects self-reference cycles', () => {
-    // This will fail until implemented
+  test('detects self-reference cycles', () => {
     const graph = new DependencyGraph();
     expect(graph.hasCycle(toCellAddress('A1'), toCellAddress('A1'))).toBe(true);
   });
   
-  test.skip('correctly identifies no cycle', () => {
-    // This will fail until implemented
+  test('correctly identifies no cycle', () => {
     const graph = new DependencyGraph();
     graph.addDependency(toCellAddress('A1'), toCellAddress('B1'));
     graph.addDependency(toCellAddress('A1'), toCellAddress('C1'));
@@ -76,22 +77,19 @@ describe('Formula Evaluation', () => {
     sheet = createSeedSheet();
   });
   
-  test.skip('evaluates literal cells', () => {
-    // This will fail until implemented
+  test('evaluates literal cells', () => {
     const result = engine.evaluateCell(sheet, toCellAddress('A3'));
     expect(result.value).toBe(1000);
     expect(result.error).toBeUndefined();
   });
   
-  test.skip('evaluates simple arithmetic formula', () => {
-    // This will fail until implemented
+  test('evaluates simple arithmetic formula', () => {
     // C3 contains "=A3-B3" where A3=1000, B3=300
     const result = engine.evaluateCell(sheet, toCellAddress('C3'));
     expect(result.value).toBe(700);
   });
   
-  test.skip('detects circular references in seed data', () => {
-    // This will fail until implemented
+  test('detects circular references in seed data', () => {
     // C6 and C7 have a circular reference
     const result = engine.evaluateCell(sheet, toCellAddress('C6'));
     expect(result.error).toBeDefined();
@@ -100,8 +98,7 @@ describe('Formula Evaluation', () => {
 });
 
 describe('Built-in Functions', () => {
-  test.skip('SUM adds numbers correctly', () => {
-    // This will fail until implemented
+  test('SUM adds numbers correctly', () => {
     const sheet: Sheet = {
       id: 'test',
       name: 'Test',
@@ -125,8 +122,7 @@ describe('Built-in Functions', () => {
     expect(result.value).toBe(60);
   });
 
-  test.skip('IF evaluates conditions', () => {
-    // This will fail until implemented
+  test('IF evaluates conditions', () => {
     const sheet: Sheet = {
       id: 'test',
       name: 'Test',

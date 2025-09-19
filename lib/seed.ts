@@ -1,4 +1,5 @@
-import { Sheet, Cell, CellAddress, toCellAddress } from '@/types';
+import { Sheet, toCellAddress } from '@/types';
+import { parseFormula } from './parser';
 
 // Create the seed sheet with initial data
 export function createSeedSheet(): Sheet {
@@ -22,7 +23,7 @@ export function createSeedSheet(): Sheet {
   sheet.cells[toCellAddress('C3')] = { 
     kind: 'formula', 
     src: '=A3-B3',
-    ast: null as any // TODO: Parse this formula
+    ast: parseFormula('A3-B3')
   };
 
   sheet.cells[toCellAddress('A4')] = { kind: 'literal', value: 2000 };
@@ -30,43 +31,43 @@ export function createSeedSheet(): Sheet {
   sheet.cells[toCellAddress('C4')] = { 
     kind: 'formula', 
     src: '=A4-B4',
-    ast: null as any // TODO: Parse this formula
+    ast: parseFormula('A4-B4')
   };
 
   // Add sum row
   sheet.cells[toCellAddress('A5')] = { 
     kind: 'formula', 
     src: '=SUM(A3:A4)',
-    ast: null as any // TODO: Parse this formula
+    ast: parseFormula('SUM(A3:A4)')
   };
   sheet.cells[toCellAddress('B5')] = { 
     kind: 'formula', 
     src: '=SUM(B3:B4)',
-    ast: null as any // TODO: Parse this formula
+    ast: parseFormula('SUM(B3:B4)')
   };
   sheet.cells[toCellAddress('C5')] = { 
     kind: 'formula', 
     src: '=SUM(C3:C4)',
-    ast: null as any // TODO: Parse this formula
+    ast: parseFormula('SUM(C3:C4)')
   };
 
   // Add subtle trap: absolute reference
   sheet.cells[toCellAddress('D3')] = { 
     kind: 'formula', 
     src: '=A3-B$3',  // Absolute row reference
-    ast: null as any // TODO: Parse this formula
+    ast: parseFormula('A3-B$3')
   };
 
   // Hidden cycle trap (out of initial viewport)
   sheet.cells[toCellAddress('C6')] = { 
     kind: 'formula', 
     src: '=C7+1',
-    ast: null as any // TODO: Parse this formula
+    ast: parseFormula('C7+1')
   };
   sheet.cells[toCellAddress('C7')] = { 
     kind: 'formula', 
-    src: '=C6+1',  // Creates a cycle with C6
-    ast: null as any // TODO: Parse this formula
+    src: '=C6+1',
+    ast: parseFormula('C6+1')
   };
 
   return sheet;

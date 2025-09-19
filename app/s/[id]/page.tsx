@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import { Sheet } from '@/types';
+import { Sheet, CellAddress } from '@/types';
+import Grid from '@/components/Grid';
 
 export default function SheetPage() {
   const params = useParams();
@@ -11,11 +12,7 @@ export default function SheetPage() {
   const [sheet, setSheet] = useState<Sheet | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchSheet();
-  }, [sheetId]);
-
-  const fetchSheet = async () => {
+  const fetchSheet = useCallback(async () => {
     try {
       const response = await fetch(`/api/sheets/${sheetId}`);
       if (response.ok) {
@@ -27,58 +24,82 @@ export default function SheetPage() {
     } finally {
       setLoading(false);
     }
+  }, [sheetId]);
+
+  useEffect(() => {
+    fetchSheet();
+  }, [fetchSheet]);
+
+  const handleUpdateCell = async (address: CellAddress, value: string) => {
+    if (!sheet) return;
+
+    try {
+      // Handle empty values as clear operations
+      const edit = value.trim() === '' ? {
+        addr: address,
+        kind: 'clear' as const
+      } : {
+        addr: address,
+        kind: value.startsWith('=') ? 'formula' as const : 'literal' as const,
+        value: value.startsWith('=') ? undefined : value,
+        formula: value.startsWith('=') ? value : undefined
+      };
+
+      const response = await fetch(`/api/sheets/${sheetId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          edits: [edit]
+        })
+      });
+
+      if (response.ok) {
+        const updatedSheet = await response.json();
+        setSheet(updatedSheet);
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to update cell:', errorData);
+      }
+    } catch (error) {
+      console.error('Failed to update cell:', error);
+    }
   };
 
-  if (loading) return <div>Loading sheet...</div>;
-  if (!sheet) return <div>Sheet not found</div>;
+  if (loading) {
+    return (
+      <div className="loading-state">
+        <div className="loading-text">Loading sheet...</div>
+      </div>
+    );
+  }
+  
+  if (!sheet) {
+    return (
+      <div className="loading-state">
+        <div className="loading-text">Sheet not found</div>
+      </div>
+    );
+  }
 
-  // Simple unstyled display of sheet data
   return (
-    <div>
+    <div className="h-screen flex flex-col">
       {/* Toolbar */}
-      <div>
-        <h1>{sheet.name}</h1>
-        <button>Sort</button>
-        <button>Export CSV</button>
+      <div className="toolbar">
+        <h1 className="toolbar-title">{sheet.name}</h1>
+        <div className="toolbar-actions">
+          <button className="toolbar-button">
+            Sort
+          </button>
+          <button className="toolbar-button">
+            Export CSV
+          </button>
+        </div>
       </div>
 
-      {/* Formula Bar */}
-      <div>
-        <span>A1</span>
-        <input type="text" readOnly value="" />
+      {/* Grid */}
+      <div className="flex-1 overflow-hidden">
+        <Grid sheet={sheet} onUpdateCell={handleUpdateCell} />
       </div>
-
-      {/* Grid - just display cells in a table */}
-      <table>
-        <thead>
-          <tr>
-            <th></th>
-            {Array.from({ length: Math.min(sheet.cols, 10) }, (_, i) => (
-              <th key={i}>{String.fromCharCode(65 + i)}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {Array.from({ length: Math.min(sheet.rows, 20) }, (_, row) => (
-            <tr key={row}>
-              <td>{row + 1}</td>
-              {Array.from({ length: Math.min(sheet.cols, 10) }, (_, col) => {
-                const addr = `${String.fromCharCode(65 + col)}${row + 1}`;
-                const cell = sheet.cells[addr as any];
-                return (
-                  <td key={col}>
-                    {cell ? (
-                      cell.kind === 'literal' ? String(cell.value) :
-                      cell.kind === 'formula' ? cell.src :
-                      cell.kind === 'error' ? `#${cell.code}!` : ''
-                    ) : ''}
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 }

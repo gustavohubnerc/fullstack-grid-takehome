@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sheetStore } from '@/lib/state';
-import { Sheet, toCellAddress } from '@/types';
+import { Sheet } from '@/types';
 import { SheetCreateSchema, validateRequest } from '@/lib/validation';
 
 // GET /api/sheets - List all sheets

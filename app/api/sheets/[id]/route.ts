@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sheetStore } from '@/lib/state';
-import { engine } from '@/lib/engine';
 import { SheetPatchSchema, validateRequest } from '@/lib/validation';
 import { toCellAddress } from '@/types';
 import { parseFormula } from '@/lib/parser';
 
 // GET /api/sheets/[id] - Get sheet snapshot
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const sheet = sheetStore.get(params.id);
+    const { id } = await params;
+    const sheet = sheetStore.get(id);
     
     if (!sheet) {
       return NextResponse.json(
@@ -34,10 +34,11 @@ export async function GET(
 // PATCH /api/sheets/[id] - Apply cell edits
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const sheet = sheetStore.get(params.id);
+    const { id } = await params;
+    const sheet = sheetStore.get(id);
     
     if (!sheet) {
       return NextResponse.json(
@@ -90,7 +91,7 @@ export async function PATCH(
     }
 
     sheet.updatedAt = new Date();
-    sheetStore.update(params.id, sheet);
+    sheetStore.update(id, sheet);
 
     // TODO: Recalculate affected cells
     
